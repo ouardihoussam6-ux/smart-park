@@ -32,15 +32,23 @@ echo "     OK"
 echo "[2/6] Sauvegarde des fichiers existants (suffixe _old)..."
 
 backup() {
-    local target="$WEB_ROOT/$1"
-    local backup="$WEB_ROOT/${1%.*}_old${1:${#1%.*}}"
-    # Pour les dossiers : api/ -> api_old/
-    # Pour les fichiers : index.php -> index_old.php
+    local name="$1"
+    local target="$WEB_ROOT/$name"
+    local ext="${name##*.}"
+    local bak
+
+    # Dossier ou fichier sans extension -> name_old
+    # Fichier avec extension         -> name_old.ext
+    if [ "$name" = "$ext" ]; then
+        bak="$WEB_ROOT/${name}_old"
+    else
+        bak="$WEB_ROOT/${name%.*}_old.${ext}"
+    fi
 
     if [ -e "$target" ]; then
-        sudo rm -rf "$backup"
-        sudo mv "$target" "$backup"
-        echo "     $1  =>  ${backup##*/}"
+        sudo rm -rf "$bak"
+        sudo mv "$target" "$bak"
+        echo "     $name  =>  ${bak##*/}"
     fi
 }
 
