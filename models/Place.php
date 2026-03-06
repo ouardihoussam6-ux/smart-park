@@ -27,6 +27,11 @@ final class Place
         )->execute([$etat, $uid, $id]);
     }
 
+    public static function resetAll(): void
+    {
+        Database::get()->exec('UPDATE places SET etat = \'libre\', uid_actuel = NULL');
+    }
+
     public static function stats(): array
     {
         $rows = Database::get()

@@ -1,13 +1,19 @@
 <?php
 declare(strict_types=1);
 
-header('Content-Type: text/plain; charset=utf-8');
+require_once __DIR__ . '/../models/Place.php';
 
-$file = __DIR__ . '/../reset_ordre.txt';
+header('Content-Type: application/json; charset=utf-8');
 
-if (file_put_contents($file, '1') !== false) {
-    echo 'OK';
-} else {
+try {
+    // Remettre toutes les places à libre en BD
+    Place::resetAll();
+
+    // Envoyer l'ordre de reset à l'ESP32
+    $ok = file_put_contents(__DIR__ . '/../reset_ordre.txt', '1') !== false;
+
+    echo json_encode(['ok' => $ok]);
+} catch (Throwable) {
     http_response_code(500);
-    echo 'ERR';
+    echo json_encode(['ok' => false]);
 }
