@@ -7,6 +7,7 @@ set -e
 
 WEB_ROOT="/var/www/html"
 PROJECT="$(cd "$(dirname "$0")" && pwd)"
+LOCAL_IP=$(hostname -I | awk '{print $1}')
 
 echo "===================================================="
 echo " Smart Park — Deploiement"
@@ -116,8 +117,8 @@ fi
 echo ""
 echo "===================================================="
 echo " Termine !"
-echo " Dashboard : http://172.20.10.2/index.php"
-echo " API ESP32 : http://172.20.10.2/api/check_uid.php"
+echo " Dashboard : http://$LOCAL_IP/index.php"
+echo " API ESP32 : http://$LOCAL_IP/api/check_uid.php"
 echo ""
 echo " Anciens fichiers gardes avec le suffixe _old :"
 echo "   api_old/  assets_old/  config_old/  models_old/"
