@@ -18,8 +18,10 @@ if ($tagId === '' || $action === '') {
 
 try {
     Log::insert($tagId, $action, $slot);
-
-    if ($slot >= 1 && $slot <= 3) {
+    
+    if ($action === 'boot') {
+        Place::resetAll();
+    } elseif ($slot >= 1 && $slot <= 3) {
         match ($action) {
             'slot_valide'  => Place::update($slot, 'occupee', $tagId),
             'slot_libere'  => Place::update($slot, 'libre', null),

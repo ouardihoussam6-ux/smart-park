@@ -45,6 +45,13 @@ final class Badge
         )->execute([$id]);
     }
 
+    public static function updateUserId(int $id, int $userId): void
+    {
+        Database::get()->prepare(
+            'UPDATE badges SET user_id = ? WHERE id = ?'
+        )->execute([$userId, $id]);
+    }
+
     public static function delete(int $id): void
     {
         Database::get()->prepare('DELETE FROM badges WHERE id = ?')->execute([$id]);

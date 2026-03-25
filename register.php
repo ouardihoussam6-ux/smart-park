@@ -4,7 +4,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/includes/layout.php';
 
 if (is_logged_in()) {
-    header('Location: /index.php');
+    header('Location: /' . (is_admin() ? 'index.php' : 'home.php'));
     exit;
 }
 

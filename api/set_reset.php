@@ -1,9 +1,17 @@
 <?php
 declare(strict_types=1);
 
+require_once __DIR__ . '/../includes/session.php';
 require_once __DIR__ . '/../models/Place.php';
 
 header('Content-Type: application/json; charset=utf-8');
+
+// Only admin can reset the ESP32
+if (!is_admin()) {
+    http_response_code(403);
+    echo json_encode(['ok' => false, 'error' => 'forbidden']);
+    exit;
+}
 
 try {
     // Remettre toutes les places à libre en BD

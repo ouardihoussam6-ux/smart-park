@@ -73,14 +73,17 @@ CREATE TABLE IF NOT EXISTS badges (
 
 -- Insert default admin (password is also 'admin')
 INSERT IGNORE INTO users (id, nom, prenom, email, password_hash, role) 
-VALUES (1, 'Admin', 'Super', 'admin@smartpark.local', '$2y$10$vN0M5rR3C4s0e1N5YjX8B.4e9g9gG8W8E8N8V8Z.3A8C8x1', 'admin');
+VALUES (1, 'Admin', 'Super', 'admin@smartpark.local', '\$2y\$10\$YJ6k8hVZJm5fN3wQv2n5IuKq1c9P7zL4E8M6X0H2A3B4D5F6G7I8K', 'admin');
 
 CREATE TABLE IF NOT EXISTS places (
     id_place   INT         NOT NULL,
-    etat       ENUM('libre','occupee','panne') NOT NULL DEFAULT 'libre',
+    etat       ENUM('libre','occupee','panne','reservee') NOT NULL DEFAULT 'libre',
     uid_actuel VARCHAR(50) DEFAULT NULL,
+    reserve_par INT DEFAULT NULL,
+    reserve_jusqu_a TIMESTAMP NULL DEFAULT NULL,
     updated_at TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (id_place)
+    PRIMARY KEY (id_place),
+    FOREIGN KEY (reserve_par) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS logs (
@@ -95,6 +98,17 @@ CREATE TABLE IF NOT EXISTS logs (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT IGNORE INTO places (id_place, etat) VALUES (1,'libre'),(2,'libre'),(3,'libre');
+
+CREATE TABLE IF NOT EXISTS settings (
+    cle VARCHAR(50) NOT NULL,
+    val VARCHAR(255) NOT NULL DEFAULT '',
+    PRIMARY KEY (cle)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT IGNORE INTO settings (cle, val) VALUES
+    ('parking_open',     '07:00'),
+    ('parking_close',    '19:00'),
+    ('schedule_enabled', '1');
 SQL
 
 echo "     OK"
@@ -104,7 +118,8 @@ echo "[3/6] Suppression des anciens fichiers..."
 
 for item in api assets config includes models \
             index.php inscription.php badges.php logs.php setup.php \
-            check_uid.php api_rfid.php clear_reset.php; do
+            check_uid.php api_rfid.php clear_reset.php \
+            login.php logout.php register.php; do
     sudo rm -rf "$WEB_ROOT/$item"
 done
 
@@ -130,6 +145,10 @@ sudo cp "$PROJECT/setup.php"       "$WEB_ROOT/"
 sudo cp "$PROJECT/check_uid.php"   "$WEB_ROOT/"
 sudo cp "$PROJECT/api_rfid.php"    "$WEB_ROOT/"
 sudo cp "$PROJECT/clear_reset.php" "$WEB_ROOT/"
+sudo cp "$PROJECT/login.php"       "$WEB_ROOT/"
+sudo cp "$PROJECT/logout.php"      "$WEB_ROOT/"
+sudo cp "$PROJECT/register.php"    "$WEB_ROOT/"
+sudo cp "$PROJECT/home.php"        "$WEB_ROOT/"
 
 # Fichiers d'état : ne pas écraser s'ils existent
 if [ ! -f "$WEB_ROOT/reset_ordre.txt" ]; then

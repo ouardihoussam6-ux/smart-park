@@ -29,7 +29,7 @@ try {
     $steps[] = ['ok', 'Connexion à la base de données <b>smart_park</b> réussie.'];
 
     $tables = $pdo->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
-    foreach (['badges', 'places', 'logs'] as $t) {
+    foreach (['badges', 'places', 'logs', 'settings'] as $t) {
         if (in_array($t, $tables)) {
             $steps[] = ['ok', "Table <b>$t</b> présente."];
         } else {

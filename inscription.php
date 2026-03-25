@@ -30,15 +30,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $type = 'err';
     } else {
         try {
-            if (Badge::findByUid($uid)) {
-                $msg  = 'Ce badge est déjà attribué ou enregistré.';
-                $type = 'err';
+            $badge = Badge::findByUid($uid);
+            if ($badge) {
+                if ($badge['user_id'] !== null) {
+                    $msg  = 'Ce badge est déjà attribué à un autre compte.';
+                    $type = 'err';
+                } else {
+                    Badge::updateUserId((int)$badge['id'], (int)$user['id']);
+                    $msg  = 'Badge existant lié à votre compte avec succès.';
+                    $type = 'ok';
+                    $existingBadge = ['tag_uid' => $uid, 'autorise' => $badge['autorise']];
+                }
             } else {
                 $nomBadge = $user['prenom'] . ' ' . $user['nom'];
                 Badge::create($uid, $nomBadge, (int)$user['id']);
                 $msg  = 'Badge enregistré et associé à votre compte avec succès.';
                 $type = 'ok';
-                $existingBadge = ['tag_uid' => $uid]; // Simulate state update
+                $existingBadge = ['tag_uid' => $uid, 'autorise' => 1];
             }
         } catch (Throwable) {
             $msg  = 'Erreur serveur. Réessayez.';

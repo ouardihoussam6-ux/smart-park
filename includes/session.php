@@ -36,7 +36,8 @@ function require_admin(): void
 {
     require_login();
     if (!is_admin()) {
-        die('Accès refusé. Vous devez être administrateur pour voir cette page.');
+        header('Location: /home.php');
+        exit;
     }
 }
 

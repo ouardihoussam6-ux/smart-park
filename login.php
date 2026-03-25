@@ -4,7 +4,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/includes/layout.php';
 
 if (is_logged_in()) {
-    header('Location: /index.php');
+    header('Location: /' . (is_admin() ? 'index.php' : 'home.php'));
     exit;
 }
 
@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = User::authenticate($email, $password);
         if ($user) {
             login_user($user);
-            header("Location: /" . ($user['role'] === 'admin' ? 'index.php' : 'inscription.php'));
+            header("Location: /" . ($user['role'] === 'admin' ? 'index.php' : 'home.php'));
             exit;
         } else {
             $error = 'Email ou mot de passe incorrect.';

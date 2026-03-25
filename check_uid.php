@@ -1,8 +1,9 @@
 <?php
 declare(strict_types=1);
 
-// Point d'entrée ESP32 : POST uid=XXXXXXXX → "OK", "REFUSE" ou "REGISTERED"
+// Point d'entrée ESP32 : POST uid=XXXXXXXX → "OK", "REFUSE", "FERME" ou "REGISTERED"
 require_once __DIR__ . '/models/Badge.php';
+require_once __DIR__ . '/models/Setting.php';
 
 header('Content-Type: text/plain; charset=utf-8');
 
@@ -18,15 +19,60 @@ if (trim((string) (file_get_contents($modeFile) ?: '0')) === '1') {
     exit;
 }
 
+// Vérifier la plage horaire d'accès
+try {
+    if (!Setting::isParkingOpen()) {
+        echo 'FERME|' . Setting::openingHour() . '-' . Setting::closingHour();
+        exit;
+    }
+} catch (Throwable) {
+    // En cas d'erreur de lecture des paramètres, on laisse passer
+}
+
 // Mode normal → vérifier l'autorisation
 try {
     $badge = Badge::findByUid($uid);
     if ($badge && (int)$badge['autorise'] === 1) {
-        // Renvoyer OK suivi du nom pour que l'ESP32 l'affiche
-        echo 'OK|' . $badge['nom'];
+        require_once __DIR__ . '/models/Place.php';
+        Place::freeExpiredReservations();
+
+        $nom = $badge['nom'];
+        $userId = $badge['user_id'];
+
+        // 1. Déjà garé ?
+        $st = Database::get()->prepare("SELECT id_place FROM places WHERE uid_actuel = ? AND etat = 'occupee' LIMIT 1");
+        $st->execute([$uid]);
+        $parked = $st->fetch();
+        if ($parked) {
+            echo "OK|$nom|RELEASE|" . $parked['id_place'];
+            exit;
+        }
+
+        // 2. A une réservation ?
+        if ($userId) {
+            $st = Database::get()->prepare("SELECT id_place FROM places WHERE reserve_par = ? AND etat = 'reservee' LIMIT 1");
+            $st->execute([$userId]);
+            $reserved = $st->fetch();
+            if ($reserved) {
+                echo "OK|$nom|ENTER|" . $reserved['id_place'];
+                exit;
+            }
+        }
+
+        // 3. Sinon, trouver une place libre
+        $st = Database::get()->prepare("SELECT id_place FROM places WHERE etat = 'libre' ORDER BY id_place ASC LIMIT 1");
+        $st->execute();
+        $libre = $st->fetch();
+        if ($libre) {
+            echo "OK|$nom|ENTER|" . $libre['id_place'];
+            exit;
+        }
+
+        // 4. Complet
+        echo "OK|$nom|FULL|0";
     } else {
         echo 'REFUSE';
     }
-} catch (Throwable) {
+} catch (Throwable $e) {
     echo 'REFUSE';
 }
