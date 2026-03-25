@@ -48,15 +48,32 @@ FLUSH PRIVILEGES;
 
 USE smart_park;
 
+CREATE TABLE IF NOT EXISTS users (
+    id            INT          NOT NULL AUTO_INCREMENT,
+    nom           VARCHAR(100) NOT NULL,
+    prenom        VARCHAR(100) NOT NULL,
+    email         VARCHAR(150) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    role          ENUM('user','admin') NOT NULL DEFAULT 'user',
+    created_at    TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE IF NOT EXISTS badges (
     id         INT          NOT NULL AUTO_INCREMENT,
+    user_id    INT          DEFAULT NULL,
     tag_uid    VARCHAR(50)  NOT NULL,
     nom        VARCHAR(100) NOT NULL DEFAULT 'Inconnu',
     autorise   TINYINT(1)   NOT NULL DEFAULT 1,
     created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
-    UNIQUE KEY uq_uid (tag_uid)
+    UNIQUE KEY uq_uid (tag_uid),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Insert default admin (password is also 'admin')
+INSERT IGNORE INTO users (id, nom, prenom, email, password_hash, role) 
+VALUES (1, 'Admin', 'Super', 'admin@smartpark.local', '$2y$10$vN0M5rR3C4s0e1N5YjX8B.4e9g9gG8W8E8N8V8Z.3A8C8x1', 'admin');
 
 CREATE TABLE IF NOT EXISTS places (
     id_place   INT         NOT NULL,

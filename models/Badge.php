@@ -29,12 +29,12 @@ final class Badge
             ->fetchAll();
     }
 
-    public static function create(string $uid, string $nom): int
+    public static function create(string $uid, string $nom, ?int $userId = null): int
     {
         $st = Database::get()->prepare(
-            'INSERT INTO badges (tag_uid, nom, autorise) VALUES (?, ?, 1)'
+            'INSERT INTO badges (tag_uid, nom, autorise, user_id) VALUES (?, ?, 1, ?)'
         );
-        $st->execute([strtoupper(trim($uid)), trim($nom)]);
+        $st->execute([strtoupper(trim($uid)), trim($nom), $userId]);
         return (int) Database::get()->lastInsertId();
     }
 

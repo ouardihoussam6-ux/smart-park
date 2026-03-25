@@ -20,7 +20,13 @@ if (trim((string) (file_get_contents($modeFile) ?: '0')) === '1') {
 
 // Mode normal → vérifier l'autorisation
 try {
-    echo Badge::isAuthorized($uid) ? 'OK' : 'REFUSE';
+    $badge = Badge::findByUid($uid);
+    if ($badge && (int)$badge['autorise'] === 1) {
+        // Renvoyer OK suivi du nom pour que l'ESP32 l'affiche
+        echo 'OK|' . $badge['nom'];
+    } else {
+        echo 'REFUSE';
+    }
 } catch (Throwable) {
     echo 'REFUSE';
 }

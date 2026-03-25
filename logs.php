@@ -4,6 +4,8 @@ declare(strict_types=1);
 require_once __DIR__ . '/models/Log.php';
 require_once __DIR__ . '/includes/layout.php';
 
+require_admin();
+
 const PER_PAGE = 30;
 
 $page = max(1, (int) ($_GET['page'] ?? 1));

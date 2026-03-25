@@ -1,14 +1,23 @@
 <?php
 declare(strict_types=1);
 
+require_once __DIR__ . '/session.php';
+
 function render_header(string $title, string $active = ''): void
 {
-    $nav = [
-        'index.php'       => 'Tableau de bord',
-        'badges.php'      => 'Badges',
-        'logs.php'        => 'Journaux',
-        'inscription.php' => 'Inscrire',
-    ];
+    $nav = [];
+    if (is_admin()) {
+        $nav['index.php']       = 'Tableau de bord';
+        $nav['badges.php']      = 'Gestion Badges';
+        $nav['logs.php']        = 'Journaux';
+    }
+    if (is_logged_in()) {
+        $nav['inscription.php'] = 'Mon Badge';
+        $nav['logout.php']      = 'Déconnexion';
+    } else {
+        $nav['login.php']       = 'Connexion';
+        $nav['register.php']    = 'Inscription';
+    }
     ?>
 <!DOCTYPE html>
 <html lang="fr">

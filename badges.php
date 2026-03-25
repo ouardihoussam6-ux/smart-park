@@ -4,6 +4,8 @@ declare(strict_types=1);
 require_once __DIR__ . '/models/Badge.php';
 require_once __DIR__ . '/includes/layout.php';
 
+require_admin();
+
 $msg  = null;
 $type = 'ok';
 

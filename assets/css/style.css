@@ -6,10 +6,22 @@
 
 html { font-size: 14px; -webkit-font-smoothing: antialiased; }
 
+:root {
+    --primary-500: #3b82f6;
+    --primary-600: #2563eb;
+    --bg-page: #f8fafc;
+    --bg-surface: #ffffff;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --border: #e2e8f0;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    background: #f0f0f0;
-    color: #111;
+    background: var(--bg-page);
+    color: var(--text-main);
     line-height: 1.5;
     min-height: 100vh;
 }
@@ -53,10 +65,16 @@ h1 { font-size: 18px; font-weight: 600; letter-spacing: -.02em; margin-bottom: 4
 .places { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 40px; }
 
 .place {
-    background: #fff;
-    border-radius: 8px;
+    background: var(--bg-surface);
+    border-radius: 12px;
     padding: 20px;
-    border-top: 3px solid #e0e0e0;
+    border-top: 4px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.place:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
 }
 .place.libre   { border-top-color: #22c55e; }
 .place.occupee { border-top-color: #ef4444; }
@@ -81,7 +99,13 @@ h1 { font-size: 18px; font-weight: 600; letter-spacing: -.02em; margin-bottom: 4
 }
 
 /* surface blanche générique */
-.surface { background: #fff; border-radius: 8px; overflow: hidden; }
+.surface { 
+    background: var(--bg-surface); 
+    border-radius: 12px; 
+    overflow: hidden; 
+    box-shadow: var(--shadow-sm); 
+    border: 1px solid var(--border);
+}
 
 /* table */
 table { width: 100%; border-collapse: collapse; font-size: 13px; }

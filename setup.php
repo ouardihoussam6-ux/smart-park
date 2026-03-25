@@ -7,6 +7,10 @@ declare(strict_types=1);
  * Cette page vérifie juste que tout est opérationnel.
  */
 
+require_once __DIR__ . '/includes/session.php';
+require_admin();
+
+
 $DB_HOST = 'localhost';
 $DB_NAME = 'smart_park';
 $DB_USER = 'admin';

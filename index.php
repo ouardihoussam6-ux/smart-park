@@ -5,6 +5,8 @@ require_once __DIR__ . '/models/Place.php';
 require_once __DIR__ . '/models/Log.php';
 require_once __DIR__ . '/includes/layout.php';
 
+require_admin();
+
 $actionLabel = [
     'lecture'          => 'Lecture',
     'proposition_slot' => 'Proposition',
