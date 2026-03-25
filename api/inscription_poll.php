@@ -12,15 +12,10 @@ if (!is_logged_in()) {
     exit;
 }
 
-$user = current_user();
-$userId = $user['id'];
-
 $file = __DIR__ . '/../inscription_uid.txt';
-$data = explode('|', trim((string)@file_get_contents($file)));
+$uid  = trim((string) (file_get_contents($file) ?: ''));
 
-// Check if the file contains the UID and the locking user matches
-if (count($data) >= 2 && (int)$data[1] === $userId) {
-    $uid = $data[0];
+if ($uid !== '') {
     file_put_contents($file, '');
     echo json_encode(['uid' => $uid]);
 } else {
