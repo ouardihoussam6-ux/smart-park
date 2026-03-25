@@ -1,4 +1,5 @@
 <?php
+// Test : vérification du push vers GitHub — 25/03/2026
 declare(strict_types=1);
 
 require_once __DIR__ . '/models/Badge.php';
@@ -105,3 +106,4 @@ render_header('Badges', 'badges.php');
 </div>
 
 <?php render_footer(); ?>
+
