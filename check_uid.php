@@ -12,21 +12,21 @@ if ($uid === '') { echo 'REFUSE'; exit; }
 
 // Mode inscription actif → capturer l'UID pour la page web
 $modeFile = __DIR__ . '/inscription_mode.txt';
-if (trim((string) (file_get_contents($modeFile) ?: '0')) === '1') {
-    file_put_contents($modeFile,                         '0');
-    file_put_contents(__DIR__ . '/inscription_uid.txt',  $uid);
-    echo 'REGISTERED';
-    exit;
-}
+$lockData = explode('|', trim((string)@file_get_contents($modeFile)));
 
-// Vérifier la plage horaire d'accès
-try {
-    if (!Setting::isParkingOpen()) {
-        echo 'FERME|' . Setting::openingHour() . '-' . Setting::closingHour();
+if (count($lockData) >= 2) {
+    $lockUserId = (int)$lockData[0];
+    $lockTime = (int)$lockData[1];
+    
+    // Si le verrou est encore valide (< 60s)
+    if ((time() - $lockTime) < 60) {
+        // Libérer le verrou
+        file_put_contents($modeFile, '0|0');
+        // Écrire l'UID accompagné de l'ID utilisateur
+        file_put_contents(__DIR__ . '/inscription_uid.txt', $uid . '|' . $lockUserId);
+        echo 'REGISTERED';
         exit;
     }
-} catch (Throwable) {
-    // En cas d'erreur de lecture des paramètres, on laisse passer
 }
 
 // Mode normal → vérifier l'autorisation
@@ -46,6 +46,16 @@ try {
         if ($parked) {
             echo "OK|$nom|RELEASE|" . $parked['id_place'];
             exit;
+        }
+
+        // Vérifier la plage horaire d'accès UNIQUEMENT pour les entrées
+        try {
+            if (!Setting::isParkingOpen()) {
+                echo 'FERME|' . Setting::openingHour() . '-' . Setting::closingHour();
+                exit;
+            }
+        } catch (Throwable) {
+            // En cas d'erreur de lecture des paramètres, on laisse passer
         }
 
         // 2. A une réservation ?
