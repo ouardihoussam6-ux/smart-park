@@ -177,7 +177,15 @@
         subTxt.textContent  = 'Approchez le badge du lecteur de l\'ESP32';
 
         fetch('/api/inscription_start.php', { method: 'POST' })
-            .then(function() { startPoll(); })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.ok) {
+                    startPoll();
+                } else {
+                    alert(data.error || 'Erreur lecteur occupé.');
+                    reset();
+                }
+            })
             .catch(function() { reset(); });
     }
 
